@@ -1,0 +1,26 @@
+# Verifica el prototipo en cada cambio: estilo de código (ESLint + Prettier) y pruebas
+# de extremo a extremo con Playwright, incluida la auditoría de accesibilidad con axe-core.
+name: Prototipo · CI
+
+on:
+  push:
+    paths: ['prototipo/**', '.github/workflows/prototipo-ci.yml']
+  pull_request:
+    paths: ['prototipo/**', '.github/workflows/prototipo-ci.yml']
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prototipo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lint
+      - run: npx prettier --check "js/**/*.js" "tests/**/*.js"
+      - run: npm test
